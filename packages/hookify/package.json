@@ -1,0 +1,22 @@
+{
+  "name": "@chittyfoundation/hookify",
+  "version": "1.0.0",
+  "description": "Foundation hook governance primitives and contracts",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "hooks",
+    "governance",
+    "primitives",
+    "contracts"
+  ],
+  "author": "ChittyFoundation",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chittyfoundation/chittyops.git",
+    "directory": "packages/hookify"
+  }
+}

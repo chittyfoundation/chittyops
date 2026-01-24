@@ -1,0 +1,22 @@
+{
+  "name": "@chittyfoundation/territories",
+  "version": "1.0.0",
+  "description": "Cross-organizational territory governance primitives",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "territories",
+    "governance",
+    "cross-org",
+    "coordination"
+  ],
+  "author": "ChittyFoundation",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chittyfoundation/chittyops.git",
+    "directory": "packages/territories"
+  }
+}
