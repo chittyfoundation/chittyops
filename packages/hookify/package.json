@@ -18,5 +18,8 @@
     "type": "git",
     "url": "git+https://github.com/chittyfoundation/chittyops.git",
     "directory": "packages/hookify"
+  },
+  "dependencies": {
+    "@chittyfoundation/chittycanon-client": "file:../chittycanon-client"
   }
 }

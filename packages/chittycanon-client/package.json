@@ -1,0 +1,29 @@
+{
+  "name": "@chittyfoundation/chittycanon-client",
+  "version": "0.1.0",
+  "description": "API client for ChittyCanon ontology governance service",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "keywords": [
+    "chittycanon",
+    "ontology",
+    "governance",
+    "canonical",
+    "validation"
+  ],
+  "author": "ChittyFoundation",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chittyfoundation/chittyops",
+    "directory": "packages/chittycanon-client"
+  },
+  "dependencies": {},
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
