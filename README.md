@@ -1,3 +1,6 @@
+![Foundation](https://img.shields.io/badge/Foundation-service-8B5CF6?style=flat-square)
+![Tier](https://img.shields.io/badge/tier-1%20Core%20Identity-4F46E5?style=flat-square)
+
 # ChittyOps Foundation
 
 **Foundation-level operational primitives, governance structures, and cross-organizational territories.**
