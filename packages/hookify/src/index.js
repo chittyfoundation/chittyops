@@ -201,5 +201,115 @@ class HookGovernance {
     }
 }
 
-export { HookContract, HookRegistry, HookGovernance };
+/**
+ * Canonical deployment governance policies for ChittyOS workers.
+ *
+ * These contracts define the rules that all downstream CI/CD implementations
+ * (CHITTYOS/chittyops) must enforce. Codified in response to the
+ * chittyagent-tasks queue incident where a worker deployed at v1.2.0 ahead of
+ * main referenced a `notify_policy` column that did not exist in the database
+ * while a migration freeze was active.
+ *
+ * Cross-references:
+ *   chittyfoundation/.chittyops#2  — ecosystem-governance incident
+ *   chittyos/chittyops#45          — CI/CD drift angle + policy proposals
+ */
+class DeploymentGovernance {
+    constructor() {
+        // Canonical deployment governance policies.
+        // enforcement: 'block' — CI must fail hard.
+        // enforcement: 'alert' — CI/beacon must surface a warning.
+        this.policies = {
+            'deploy-from-main': {
+                id: 'deploy-from-main',
+                description: 'Deployments must only be executed from commits reachable from origin/main',
+                enforcement: 'block',
+                rationale: 'Prevents deployed workers from drifting ahead of the main branch'
+            },
+            'version-pin': {
+                id: 'version-pin',
+                description: 'CI must fail if the worker\'s declared version constant does not match the tag or commit that produced the deployment',
+                enforcement: 'block',
+                rationale: 'Ensures version constants are trustworthy and traceable'
+            },
+            'migration-freeze-interlock': {
+                id: 'migration-freeze-interlock',
+                description: 'If a worker repository carries a migration freeze notice, CI must refuse to deploy code that introduces new schema column references until the freeze is lifted',
+                enforcement: 'block',
+                rationale: 'Prevents schema drift between the deployed worker and its database'
+            },
+            'beacon-mismatch-alert': {
+                id: 'beacon-mismatch-alert',
+                description: 'ChittyBeacon must emit an alert when a deployed worker\'s reported version is not present in the git log on main',
+                enforcement: 'alert',
+                rationale: 'Provides early detection of deployment drift before it causes incidents'
+            }
+        };
+    }
+
+    /**
+     * Return all deployment governance policies.
+     * @returns {{ id: string, description: string, enforcement: string, rationale: string }[]}
+     */
+    getPolicies() {
+        return Object.values(this.policies);
+    }
+
+    /**
+     * Return a single policy by ID, or null if not found.
+     * @param {string} policyId
+     * @returns {Object|null}
+     */
+    getPolicy(policyId) {
+        return this.policies[policyId] || null;
+    }
+
+    /**
+     * Evaluate a pending deployment against all blocking governance policies.
+     *
+     * @param {Object}  deployment
+     * @param {boolean} deployment.onMain              - Commit is reachable from origin/main
+     * @param {boolean} deployment.versionMatches      - Declared version matches the tag/commit
+     * @param {boolean} deployment.migrationFreezeActive - A migration freeze notice is present
+     * @param {boolean} deployment.addsNewColumnRefs   - Deployment adds new schema column references
+     * @returns {{ allowed: boolean, violations: { policy: string, severity: string, message: string }[], blocked: { policy: string, severity: string, message: string }[] }}
+     */
+    checkDeployment(deployment) {
+        const violations = [];
+
+        if (!deployment.onMain) {
+            violations.push({
+                policy: 'deploy-from-main',
+                severity: 'block',
+                message: 'Deployment commit is not reachable from origin/main'
+            });
+        }
+
+        if (!deployment.versionMatches) {
+            violations.push({
+                policy: 'version-pin',
+                severity: 'block',
+                message: 'Declared worker version does not match the tag/commit producing this deployment'
+            });
+        }
+
+        if (deployment.migrationFreezeActive && deployment.addsNewColumnRefs) {
+            violations.push({
+                policy: 'migration-freeze-interlock',
+                severity: 'block',
+                message: 'Migration freeze is active but deployment introduces new schema column references'
+            });
+        }
+
+        const blocked = violations.filter(v => v.severity === 'block');
+
+        return {
+            allowed: blocked.length === 0,
+            violations,
+            blocked
+        };
+    }
+}
+
+export { HookContract, HookRegistry, HookGovernance, DeploymentGovernance };
 
